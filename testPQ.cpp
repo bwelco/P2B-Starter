@@ -301,9 +301,10 @@ int main() {
 //    // Clean up!
 //    delete pq;
 
-    testConstructor();
-    testUpdatePriority();
-    testPairingHeap();
-    std::cout << "Done" << std::endl;
+//    testConstructor();
+//    testUpdatePriority();
+//    testPairingHeap();
+
+    testPairingCopyConstructorAndOperator();
     return 0;
 } // main()

@@ -126,13 +126,6 @@ public:
             q.pop();
             delete node;
         }
-
-        if (root != nullptr) {
-            root->previous = nullptr;
-            root->child = nullptr;
-            root->sibling = nullptr;
-            delete root;
-        }
     } // ~PairingPQ()
 
 
