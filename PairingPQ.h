@@ -86,8 +86,8 @@ public:
         if (other_root == nullptr) {
             return nullptr;
         }
-//        num++;
-//        std::cout << "copy child new Node, num = " << num << "eld = " << other_root->getElt()  << std::endl;
+        num++;
+        std::cout << "copy child new Node, num = " << num << std::endl;
         Node* new_root = new Node(other_root->getElt());
         new_root->previous = previous;
 
@@ -102,28 +102,6 @@ public:
         return new_root;
     }
 
-//    void copy(Node* new_root, Node* other_root) {
-//        if (other_root == nullptr) {
-//            return;
-//        }
-//
-////        num++;
-////        std::cout << "copy child new Node, num = " << num << std::endl;
-////        Node* child = other_root->child == nullptr ? nullptr : new Node(other_root->child->getElt());
-////
-////        num++;
-////        std::cout << "copy sibling new Node, num = " << num << std::endl;
-////        Node* sibling = other_root->sibling == nullptr ? nullptr : new Node(other_root->sibling->getElt());
-//
-//
-//        new_root->child = child;
-//        new_root->sibling = sibling;
-//
-//        copy(new_root->child, other_root->child);
-//        copy(new_root->sibling, other_root->sibling);
-//    }
-
-
     // Description: Copy assignment operator.
     // Runtime: O(n)
     // TODO: when you implement this function, uncomment the parameter names.
@@ -135,24 +113,13 @@ public:
             node->child = nullptr;
             node->sibling = nullptr;
             q.pop();
+            num--;
+            std::cout << "Release Node: " << num << std::endl;
             delete node;
         }
 
         root = copy_recursive(rhs.root, nullptr);
-
         return *this;
-//        // TODO: Implement this function.
-//        // HINT: Use the copy-swap method from the "Arrays and Containers" lecture.
-//        if (this != &rhs) {
-//            root = nullptr;
-//            if (rhs.root != nullptr) {
-//                num++;
-//                std::cout << "new Node, num = " << num << std::endl;
-//                root = new Node(rhs.root->getElt());
-////                copy(root, rhs.root);
-//            }
-//        }
-//        return *this;
     } // operator=()
 
 
@@ -160,7 +127,7 @@ public:
     // Runtime: O(n)
     ~PairingPQ() {
         std::queue<Node*> q = to_queue();
-//        std::cout << "try to release Node" << q.size() << std::endl;
+        std::cout << "try to release Node " << q.size() << std::endl;
 
         while (!q.empty()) {
 
@@ -169,7 +136,8 @@ public:
             node->child = nullptr;
             node->sibling = nullptr;
             q.pop();
-//            std::cout << "Release Node" << std::endl;
+            num--;
+            std::cout << "Release Node: " << num << std::endl;
             delete node;
         }
     } // ~PairingPQ()
@@ -352,8 +320,8 @@ public:
     //       by the user calling pop().  Remember this when you implement updateElt() and
     //       updatePriorities().
     Node *addNode(const TYPE &val) {
-//        num++;
-//        std::cout << "new Node, num = " << num << std::endl;
+        num++;
+        std::cout << "new Node, num = " << num << std::endl;
         Node* new_node = new Node(val);
 
         if (root == nullptr) {
