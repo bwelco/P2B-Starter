@@ -46,7 +46,9 @@ void testPairingCopyConstructorAndOperator() {
         pq3->pop();
     }
 
-
+    delete pq1;
+    delete pq2;
+    delete pq3;
 }
 
 
@@ -69,6 +71,8 @@ void testPairingAddNode() {
         assert(pq1->top() == i);
         pq1->pop();
     }
+
+    delete pq1;
 }
 
 void testPairingUpdateELT() {
@@ -107,6 +111,8 @@ void testPairingUpdateELT() {
         min = (pq1->top());
         pq1->pop();
     }
+
+    delete pq1;
 }
 
 

@@ -68,6 +68,8 @@ void testUpdatePrioritiesWithUnordered(Eecs281PQ<int *, IntPtrComp> *pq) {
         pq->pop();
         unorderedPq->pop();
     }
+
+    delete unorderedPq;
 }
 
 

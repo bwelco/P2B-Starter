@@ -94,6 +94,14 @@ void testConstructor() {
         assert(pq7->top() == i);
         pq7->pop();
     }
+
+    delete pq1;
+    delete pq2;
+    delete pq3;
+    delete pq4;
+    delete pq5;
+    delete pq6;
+    delete pq7;
 }
 
 #endif // TEST_CONSTRUCTOR_H
