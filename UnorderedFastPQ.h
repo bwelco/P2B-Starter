@@ -39,7 +39,9 @@ public:
     //              comparison functor.
     // Runtime: O(n) where n is number of elements in range.
     template<typename InputIterator>
-    UnorderedFastPQ(InputIterator start, InputIterator end, COMP_FUNCTOR comp = COMP_FUNCTOR()) :
+    UnorderedFastPQ(InputIterator start,
+                    InputIterator end,
+                    COMP_FUNCTOR comp = COMP_FUNCTOR()) :
         BaseClass{ comp }, data{ start, end }, extreme{ UNKNOWN } {
     } // UnorderedFastPQ()
 

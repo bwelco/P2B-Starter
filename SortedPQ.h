@@ -22,7 +22,6 @@ public:
     // Runtime: O(1)
     explicit SortedPQ(COMP_FUNCTOR comp = COMP_FUNCTOR()) :
         BaseClass{ comp } {
-        // TODO: Implement this function
     } // SortedPQ
 
 
@@ -31,9 +30,13 @@ public:
     // Runtime: O(n log n) where n is number of elements in range.
     // TODO: When you implement this function, uncomment the parameter names.
     template<typename InputIterator>
-    SortedPQ(InputIterator /*start*/, InputIterator /*end*/, COMP_FUNCTOR comp = COMP_FUNCTOR()) :
+    SortedPQ(InputIterator start,
+             InputIterator end,
+             COMP_FUNCTOR comp = COMP_FUNCTOR()) :
         BaseClass{ comp } {
-        // TODO: Implement this function
+        for (InputIterator iterator = start; iterator != end; ++iterator) {
+            push_internal(*iterator);
+        }
     } // SortedPQ
 
 
@@ -43,11 +46,25 @@ public:
     } // ~SortedPQ()
 
 
+    void push_internal(const TYPE &val) {
+        // we will always keep the extreme value at the end of the data vector.
+        if (data.empty()) {
+            data.push_back(val);
+            return;
+        }
+        size_t index = 0;
+
+        while (index < data.size() && this->compare(data[index], val)) {
+            index++;
+        }
+        data.insert(data.begin() + (int)index, val);
+    }
+
     // Description: Add a new element to the heap.
     // Runtime: O(n)
     // TODO: When you implement this function, uncomment the parameter names.
-    virtual void push(const TYPE &/*val*/) {
-        // TODO: Implement this function
+    virtual void push(const TYPE &val) {
+       push_internal(val);
     } // push()
 
 
@@ -58,7 +75,7 @@ public:
     // familiar with them, you do not need to use exceptions in this project.
     // Runtime: Amortized O(1)
     virtual void pop() {
-        // TODO: Implement this function
+        data.pop_back();
     } // pop()
 
 
@@ -68,11 +85,7 @@ public:
     //              might make it no longer be the most extreme element.
     // Runtime: O(1)
     virtual const TYPE &top() const {
-        // TODO: Implement this function
-
-        // These lines are present only so that this provided file compiles.
-        static TYPE temp; // TODO: Delete this line
-        return temp;      // TODO: Delete or change this line
+        return data.back();
     } // top()
 
 
@@ -97,6 +110,7 @@ public:
     // Runtime: O(n log n)
     virtual void updatePriorities() {
         // TODO: Implement this function
+        std::sort(data.begin(), data.end(), this->compare);
     } // updatePriorities()
 
 

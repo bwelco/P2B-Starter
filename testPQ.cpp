@@ -33,16 +33,16 @@
 #include "PairingPQ.h"
 #include "SortedPQ.h"
 
+#include <time.h>
+#include <stdlib.h>
+#include "testConstructor.h"
+#include "testUpdatePriorities.h"
+#include "testPairingHeap.h"
+
+
 using namespace std;
 
-
 // Used to test a priority queue containing pointers to integers.
-struct IntPtrComp {
-    bool operator() (const int *a, const int *b) const {
-        return *a < *b;
-    }
-};
-
 
 // TODO: Make sure that you're using this-compare() properly, and everywhere
 // that you should.  Complete this function by adding a functor that compares
@@ -86,7 +86,36 @@ void testUpdatePrioritiesHelper(Eecs281PQ<int *, IntPtrComp> *pq) {
     data[0] = 10;
     pq->updatePriorities();
     assert(*pq->top() == 10);
+
+    while (!pq->empty()) {
+        pq->pop();
+    }
+
+    int arr[10] = {1, 4, 2, 9, 7, 10, 3, 5, 6, 8};
+    vector<int> data2;
+    data2.reserve(10);
+
+    for (size_t i = 0; i < 10; ++i) {
+        data2.push_back((int) i);
+    }
+
+    for (size_t i = 0; i < 10; ++i) {
+        pq->push(&data2[i]);
+    }
+
+    for (size_t i = 0; i < 10; ++i) {
+        data2[i] = arr[i];
+    }
+
+    pq->updatePriorities();
+
+    for (size_t i = 0; i < 10; ++i) {
+        assert(*pq->top() == (int) (10 - i));
+        pq->pop();
+    }
 } // testUpdatePrioritiesHelper()
+
+
 
 
 // TODO: Add more code to this function to test if updatePriorities()
@@ -97,7 +126,15 @@ void testUpdatePriorities(const string &pqType) {
 
     if (pqType == "Unordered") {
         pq = new UnorderedPQ<int *, IntPtrComp>;
-    } // if
+    } else if (pqType == "Sorted") {
+        pq = new SortedPQ<int *, IntPtrComp>;
+    } else if (pqType == "Binary") {
+        pq = new BinaryPQ<int *, IntPtrComp>;
+    } else if (pqType == "Pairing") {
+        pq = new PairingPQ<int *, IntPtrComp>;
+    }
+
+    // if
     // TODO: Add more types here inside 'else if' statements, like in main().
 
     if (!pq) {
@@ -105,10 +142,42 @@ void testUpdatePriorities(const string &pqType) {
         return;
     } // if
 
+    cout << "Test testUpdatePrioritiesHelper" << endl;
     testUpdatePrioritiesHelper(pq);
+    cout << "Test testUpdatePrioritiesHelper succeed!" << endl;
+
+    cout << "Test testUpdatePrioritiesWithUnordered" << endl;
+    testUpdatePrioritiesWithUnordered(pq);
+    cout << "Test testUpdatePrioritiesWithUnordered succeed!" << endl;
     delete pq;
 } // testUpdatePriorities()
 
+
+void pressureTest(Eecs281PQ<int> *pq, const string &pqType) {
+    cout << "PressureTesting priority queue: " << pqType << endl;
+
+    UnorderedPQ<int>* unorderedPq = new UnorderedPQ<int>;
+
+    srand((unsigned) time(NULL));
+    for (int i = 0; i < 1000; i++) {
+        int random = rand();
+        pq->push(random);
+        unorderedPq->push(random);
+    }
+
+    size_t size = 1000;
+    while (!unorderedPq->empty()) {
+        assert(pq->size() == size);
+        assert(unorderedPq->top() == pq->top());
+        assert(unorderedPq->empty() == pq->empty());
+        assert(unorderedPq->size() == pq->size());
+        unorderedPq->pop();
+        pq->pop();
+        size--;
+    }
+
+    cout << "PressureTesting priority queue succeed!" << endl;
+}
 
 // Very basic testing.
 void testPriorityQueue(Eecs281PQ<int> *pq, const string &pqType) {
@@ -129,7 +198,28 @@ void testPriorityQueue(Eecs281PQ<int> *pq, const string &pqType) {
     assert(pq->empty());
 
     // TODO: Add more testing here!
+    pq->push(1);
+    pq->push(0);
+    pq->push(-1);
+    pq->push(8);
+    pq->push(10);
+    pq->push(3);
+    assert(pq->size() == 6);
+    assert(pq->top() == 10);
+    assert(!pq->empty());
+    pq->pop();
+    assert(pq->top() == 8);
+    pq->pop();
+    assert(pq->top() == 3);
+    pq->pop();
 
+    assert(pq->top() == 1);
+    pq->pop();
+    assert(pq->top() == 0);
+    pq->pop();
+    assert(pq->top() == -1);
+    pq->pop();
+    assert(pq->empty());
     cout << "testPriorityQueue() succeeded!" << endl;
 } // testPriorityQueue()
 
@@ -137,14 +227,14 @@ void testPriorityQueue(Eecs281PQ<int> *pq, const string &pqType) {
 // Test the pairing heap's range-based constructor, copy constructor,
 // and operator=().
 //
-void testPairing(vector<int> & vec) {
+void testPairing(vector<int> &vec) {
     cout << "Testing Pairing Heap separately" << endl;
-    Eecs281PQ<int> * pq1 = new PairingPQ<int>(vec.begin(), vec.end());
-    Eecs281PQ<int> * pq2 = new PairingPQ<int>(*((PairingPQ<int> *)pq1));
+    Eecs281PQ<int> *pq1 = new PairingPQ<int>(vec.begin(), vec.end());
+    Eecs281PQ<int> *pq2 = new PairingPQ<int>(*((PairingPQ<int> *) pq1));
     // This line is different just to show two different ways to declare a
     // pairing heap: as an Eecs281PQ and as a PairingPQ. Yay for inheritance!
-    PairingPQ<int> * pq3 = new PairingPQ<int>();
-    *pq3 = *((PairingPQ<int> *)pq2);
+    PairingPQ<int> *pq3 = new PairingPQ<int>();
+    *pq3 = *((PairingPQ<int> *) pq2);
 
     pq1->push(3);
     pq2->pop();
@@ -167,47 +257,53 @@ void testPairing(vector<int> & vec) {
 
 
 int main() {
-    // Basic pointer, allocate a new PQ later based on user choice.
-    Eecs281PQ<int> *pq;
-    vector<string> types{ "Unordered", "Sorted", "Binary", "Pairing" };
-    unsigned int choice;
+//    // Basic pointer, allocate a new PQ later based on user choice.
+//    Eecs281PQ<int> *pq;
+//    vector <string> types{"Unordered", "Sorted", "Binary", "Pairing"};
+//    unsigned int choice;
+//
+//    cout << "PQ tester" << endl << endl;
+//    for (size_t i = 0; i < types.size(); ++i)
+//        cout << "  " << i << ") " << types[i] << endl;
+//    cout << endl;
+//    cout << "Select one: ";
+//    cin >> choice;
+//
+//    if (choice == 0) {
+//        pq = new UnorderedPQ<int>;
+//    } // if
+//    else if (choice == 1) {
+//        pq = new SortedPQ<int>;
+//    } // else if
+//    else if (choice == 2) {
+//        pq = new BinaryPQ<int>;
+//    } // else if
+//    else if (choice == 3) {
+//        pq = new PairingPQ<int>;
+//    } // else if
+//    else {
+//        cout << "Unknown container!" << endl << endl;
+//        exit(1);
+//    } // else
+//
+//    testPriorityQueue(pq, types[choice]);
+//    testUpdatePriorities(types[choice]);
+//
+//    pressureTest(pq, types[choice]);
+//
+//    if (choice == 3) {
+//        vector<int> vec;
+//        vec.push_back(0);
+//        vec.push_back(1);
+//        testPairing(vec);
+//    } // if
+//
+//    // Clean up!
+//    delete pq;
 
-    cout << "PQ tester" << endl << endl;
-    for (size_t i = 0; i < types.size(); ++i)
-        cout << "  " << i << ") " << types[i] << endl;
-    cout << endl;
-    cout << "Select one: ";
-    cin >> choice;
-
-    if (choice == 0) {
-        pq = new UnorderedPQ<int>;
-    } // if
-    else if (choice == 1) {
-        pq = new SortedPQ<int>;
-    } // else if
-    else if (choice == 2) {
-        pq = new BinaryPQ<int>;
-    } // else if
-    else if (choice == 3) {
-        pq = new PairingPQ<int>;
-    } // else if
-    else {
-        cout << "Unknown container!" << endl << endl;
-        exit(1);
-    } // else
-   
-    testPriorityQueue(pq, types[choice]);
-    testUpdatePriorities(types[choice]);
-
-    if (choice == 3) {
-        vector<int> vec;
-        vec.push_back(0);
-        vec.push_back(1);
-        testPairing(vec);
-    } // if
-
-    // Clean up!
-    delete pq;
-
+    testConstructor();
+    testUpdatePriority();
+    testPairingHeap();
+    std::cout << "Done" << std::endl;
     return 0;
 } // main()
