@@ -78,7 +78,6 @@ public:
         if (other.root == nullptr) {
             return;
         }
-//        num++;
         root = copy_recursive(other.root, nullptr);
     } // PairingPQ()
 
@@ -86,8 +85,6 @@ public:
         if (other_root == nullptr) {
             return nullptr;
         }
-        num++;
-        std::cout << "copy child new Node, num = " << num << std::endl;
         Node* new_root = new Node(other_root->getElt());
         new_root->previous = previous;
 
@@ -113,8 +110,6 @@ public:
             node->child = nullptr;
             node->sibling = nullptr;
             q.pop();
-            num--;
-            std::cout << "Release Node: " << num << std::endl;
             delete node;
         }
 
@@ -127,7 +122,6 @@ public:
     // Runtime: O(n)
     ~PairingPQ() {
         std::queue<Node*> q = to_queue();
-        std::cout << "try to release Node " << q.size() << std::endl;
 
         while (!q.empty()) {
 
@@ -136,8 +130,6 @@ public:
             node->child = nullptr;
             node->sibling = nullptr;
             q.pop();
-            num--;
-            std::cout << "Release Node: " << num << std::endl;
             delete node;
         }
     } // ~PairingPQ()
@@ -323,8 +315,6 @@ public:
     //       by the user calling pop().  Remember this when you implement updateElt() and
     //       updatePriorities().
     Node *addNode(const TYPE &val) {
-        num++;
-        std::cout << "new Node, num = " << num << std::endl;
         Node* new_node = new Node(val);
 
         if (root == nullptr) {
