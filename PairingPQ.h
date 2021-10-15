@@ -179,6 +179,7 @@ public:
     virtual void pop() {
         if (root == nullptr) return;
         if (root->child == nullptr) {
+            delete root;
             root = nullptr;
             return;
         }
@@ -190,6 +191,7 @@ public:
 
         // if child doesn't own a sibling, it's an orphan, just let it be a new rootNode.
         if (child->sibling == nullptr) {
+            delete root;
             root = child;
             return;
         }
@@ -213,6 +215,7 @@ public:
                 child_queue.push(melded);
             } else {
                 // 4. There is only one paring heap remaining, Done.
+                delete root;
                 root = first;
                 return;
             }
