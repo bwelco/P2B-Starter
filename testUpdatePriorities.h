@@ -23,6 +23,8 @@
 
 using namespace std;
 
+#define LENGTH 1000
+
 // Used to test a priority queue containing pointers to integers.
 struct IntPtrComp {
     bool operator()(const int *a, const int *b) const {
@@ -31,39 +33,38 @@ struct IntPtrComp {
 };
 
 void testUpdatePrioritiesWithUnordered(Eecs281PQ<int *, IntPtrComp> *pq) {
-
     Eecs281PQ<int *, IntPtrComp> *unorderedPq = new UnorderedPQ<int *, IntPtrComp>();
-    int arr[1000];
+    int arr[LENGTH];
 
     srand((unsigned) time(NULL));
-    for (int i = 0; i < 1000; i++) {
+    for (int i = 0; i < LENGTH; i++) {
         arr[i] = rand();
     }
 
     vector<int> data1;
-    data1.reserve(1000);
+    data1.reserve(LENGTH);
 
     vector<int> data2;
-    data2.reserve(1000);
+    data2.reserve(LENGTH);
 
-    for (size_t i = 0; i < 1000; ++i) {
+    for (size_t i = 0; i < LENGTH; ++i) {
         data1.push_back((int) i);
         data2.push_back((int) i);
     }
 
-    for (size_t i = 0; i < 1000; ++i) {
+    for (size_t i = 0; i < LENGTH; ++i) {
         pq->push(&data1[i]);
         unorderedPq->push(&data2[i]);
     }
 
-    for (size_t i = 0; i < 1000; ++i) {
+    for (size_t i = 0; i < LENGTH; ++i) {
         data1[i] = arr[i];
         data2[i] = arr[i];
     }
 
     pq->updatePriorities();
 
-    for (size_t i = 0; i < 1000; ++i) {
+    for (size_t i = 0; i < LENGTH; ++i) {
         assert(*(pq->top()) == *(unorderedPq->top()));
         pq->pop();
         unorderedPq->pop();
