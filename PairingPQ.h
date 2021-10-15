@@ -19,8 +19,6 @@ public:
     // Each node within the pairing heap
     class Node {
     public:
-        // TODO: After you add add one extra pointer (see below), be sure to
-        // initialize it here.
         explicit Node(const TYPE &val)
                 : elt{val}, child{nullptr}, sibling{nullptr}, previous{nullptr} {}
 
@@ -56,11 +54,11 @@ public:
     // Description: Construct a pairing heap out of an iterator range with an optional
     //              comparison functor.
     // Runtime: O(n) where n is number of elements in range.
-    // TODO: when you implement this function, uncomment the parameter names.
     template<typename InputIterator>
     PairingPQ(InputIterator start, InputIterator end, COMP_FUNCTOR comp = COMP_FUNCTOR()) :
             BaseClass{comp} {
         root = nullptr;
+        count = 0;
         for (InputIterator iterator = start; iterator != end; ++iterator) {
             addNode(*iterator);
         }
@@ -71,37 +69,65 @@ public:
     // Runtime: O(n)
     PairingPQ(const PairingPQ &other) :
             BaseClass{other.compare} {
-        // TODO: Implement this function.
-        // NOTE: The structure does not have to be identical to the original,
-        //       but it must still be a valid Pairing Heap.
         root = nullptr;
         if (other.root == nullptr) {
             return;
         }
-        root = copy_recursive(other.root, nullptr);
+
+        copy_non_recursive(other.root);
+        count = other.size();
     } // PairingPQ()
 
-    Node* copy_recursive(Node* other_root, Node* previous) {
-        if (other_root == nullptr) {
-            return nullptr;
-        }
-        Node* new_root = new Node(other_root->getElt());
-        new_root->previous = previous;
+    void copy_non_recursive(Node* other) {
+        std::queue<Node*> this_queue;
+        std::queue<Node*> other_queue;
 
-        if (other_root->child != nullptr) {
-            new_root->child = copy_recursive(other_root->child, new_root);
-        }
+        this->root = new Node(other->getElt());
+        this_queue.push(this->root);
+        other_queue.push(other);
 
-        if (other_root->sibling != nullptr) {
-            new_root->sibling = copy_recursive(other_root->sibling, new_root);
-        }
+        while (!other_queue.empty()) {
+            Node* other_front = other_queue.front();
+            Node* this_front = this_queue.front();
+            other_queue.pop();
+            this_queue.pop();
 
-        return new_root;
+            Node* other_child = other_front->child;
+            Node* other_sibling = other_front->sibling;
+
+            Node* this_child = other_child == nullptr ? nullptr : new Node(other_child->getElt());
+            Node* this_sibling = other_sibling == nullptr ? nullptr : new Node(other_sibling->getElt());
+            // assemble connections
+            this_front->child = this_child;
+            this_front->sibling = this_sibling;
+            if (this_child != nullptr) {
+                this_child->previous = this_front;
+            }
+
+            if (this_sibling != nullptr) {
+                this_sibling->previous = this_front;
+            }
+
+            if (other_child != nullptr) {
+                other_queue.push(other_child);
+            }
+
+            if (other_sibling != nullptr) {
+                other_queue.push(other_sibling);
+            }
+
+            if (this_child != nullptr) {
+                this_queue.push(this_child);
+            }
+
+            if (this_sibling != nullptr) {
+                this_queue.push(this_sibling);
+            }
+        }
     }
 
     // Description: Copy assignment operator.
     // Runtime: O(n)
-    // TODO: when you implement this function, uncomment the parameter names.
     PairingPQ &operator=(const PairingPQ &rhs) {
         std::queue<Node*> q = to_queue();
         while (!q.empty()) {
@@ -113,7 +139,8 @@ public:
             delete node;
         }
 
-        root = copy_recursive(rhs.root, nullptr);
+        copy_non_recursive(rhs.root);
+        count = rhs.size();
         return *this;
     } // operator=()
 
@@ -132,6 +159,7 @@ public:
             q.pop();
             delete node;
         }
+        count = 0;
     } // ~PairingPQ()
 
 
@@ -169,10 +197,14 @@ public:
     // familiar with them, you do not need to use exceptions in this project.
     // Runtime: Amortized O(log(n))
     virtual void pop() {
-        if (root == nullptr) return;
+        if (root == nullptr) {
+            count = 0;
+            return;
+        }
         if (root->child == nullptr) {
             delete root;
             root = nullptr;
+            count = 0;
             return;
         }
         // using multi-pass approach
@@ -185,6 +217,7 @@ public:
         if (child->sibling == nullptr) {
             delete root;
             root = child;
+            count--;
             return;
         }
 
@@ -208,6 +241,7 @@ public:
             } else {
                 // 4. There is only one paring heap remaining, Done.
                 delete root;
+                count--;
                 root = first;
                 return;
             }
@@ -261,7 +295,7 @@ public:
     // Description: Get the number of elements in the pairing heap.
     // Runtime: O(1)
     virtual std::size_t size() const {
-        return to_queue().size();
+        return count;
     } // size()
 
     // Description: Return true if the pairing heap is empty.
@@ -279,7 +313,6 @@ public:
     //               (as defined by comp) than the old priority.
     //
     // Runtime: As discussed in reading material.
-    // TODO: when you implement this function, uncomment the parameter names.
     void updateElt(Node* node, const TYPE &new_value) {
         node->elt = new_value;
         // it's a left most node
@@ -309,7 +342,6 @@ public:
     // Description: Add a new element to the pairing heap. Returns a Node* corresponding
     //              to the newly added element.
     // Runtime: O(1)
-    // TODO: when you implement this function, uncomment the parameter names.
     // NOTE: Whenever you create a node, and thus return a Node *, you must be sure to
     //       never move or copy/delete that node in the future, until it is eliminated
     //       by the user calling pop().  Remember this when you implement updateElt() and
@@ -319,17 +351,17 @@ public:
 
         if (root == nullptr) {
             root = new_node;
+            count = 1;
             return new_node;
         }
 
         root = meld(new_node, root);
+        count++;
         return new_node;
     } // addNode()
 
 
 private:
-    // TODO: Add any additional member variables or member functions you require here.
-    // TODO: We recommend creating a 'meld' function (see the Pairing Heap papers).
 
     Node* root;
 
@@ -361,10 +393,7 @@ private:
         b->elt = tmp;
     }
 
-    size_t num = 0;
-    // NOTE: For member variables, you are only allowed to add a "root pointer"
-    //       and a "count" of the number of nodes.  Anything else (such as a deque)
-    //       should be declared inside of member functions as needed.
+    size_t count = 0;
 };
 
 

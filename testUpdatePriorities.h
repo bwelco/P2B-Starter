@@ -20,10 +20,9 @@
 #include <time.h>
 #include <stdlib.h>
 #include "testConstructor.h"
+#include "common.h"
 
 using namespace std;
-
-#define LENGTH 10000
 
 // Used to test a priority queue containing pointers to integers.
 struct IntPtrComp {
@@ -55,6 +54,7 @@ void testUpdatePrioritiesWithUnordered(Eecs281PQ<int *, IntPtrComp> *pq) {
     for (size_t i = 0; i < LENGTH; ++i) {
         pq->push(&data1[i]);
         unorderedPq->push(&data2[i]);
+        assert(pq->size() == unorderedPq->size());
     }
 
     for (size_t i = 0; i < LENGTH; ++i) {
@@ -68,6 +68,7 @@ void testUpdatePrioritiesWithUnordered(Eecs281PQ<int *, IntPtrComp> *pq) {
         assert(*(pq->top()) == *(unorderedPq->top()));
         pq->pop();
         unorderedPq->pop();
+        assert(pq->size() == unorderedPq->size());
     }
 
     delete unorderedPq;
@@ -75,31 +76,32 @@ void testUpdatePrioritiesWithUnordered(Eecs281PQ<int *, IntPtrComp> *pq) {
 
 
 void testUpdatePairing() {
-    const int length = 100;
-    int arr[length];
+    int arr[LENGTH];
     srand((unsigned) time(NULL));
-    for (int i = 0; i < length; i++) {
+    for (int i = 0; i < LENGTH; i++) {
         arr[i] = rand();
     }
 
     vector<int> data;
-    for (size_t i = 0; i < length; ++i) {
+    for (size_t i = 0; i < LENGTH; ++i) {
         data.push_back((int) i);
     }
 
     Eecs281PQ<int *, IntPtrComp> *pq = new PairingPQ<int *, IntPtrComp>();
 
-    for (size_t i = 0; i < length; ++i) {
+    for (size_t i = 0; i < LENGTH; ++i) {
         pq->push(&data[i]);
     }
 
-    for (size_t i = 0; i < length; ++i) {
+    for (size_t i = 0; i < LENGTH; ++i) {
         data[i] = arr[i];
     }
     pq->updatePriorities();
 
+    assert(pq->size() == LENGTH);
+
     int min = *(pq->top());
-    for (size_t i = 0; i < length; ++i) {
+    for (size_t i = 0; i < LENGTH; ++i) {
         assert(min >= *(pq->top()));
         min = *(pq->top());
         pq->pop();
