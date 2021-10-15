@@ -23,7 +23,7 @@
 
 using namespace std;
 
-#define LENGTH 1000
+#define LENGTH 10000
 
 // Used to test a priority queue containing pointers to integers.
 struct IntPtrComp {
