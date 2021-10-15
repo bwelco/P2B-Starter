@@ -78,45 +78,56 @@ public:
         if (other.root == nullptr) {
             return;
         }
-        root = new Node(other.root->getElt());
-        copy(root, other.root);
+//        num++;
+        root = copy_recursive(other.root, nullptr);
     } // PairingPQ()
 
-    void copy(Node* new_root, Node* other_root) {
+    Node* copy_recursive(Node* other_root, Node* previous) {
         if (other_root == nullptr) {
-            return;
+            return nullptr;
+        }
+//        num++;
+//        std::cout << "copy child new Node, num = " << num << "eld = " << other_root->getElt()  << std::endl;
+        Node* new_root = new Node(other_root->getElt());
+        new_root->previous = previous;
+
+        if (other_root->child != nullptr) {
+            new_root->child = copy_recursive(other_root->child, new_root);
         }
 
-        Node* child = other_root->child == nullptr ? nullptr : new Node(other_root->child->getElt());
-        Node* sibling = other_root->sibling == nullptr ? nullptr : new Node(other_root->sibling->getElt());
-        new_root->child = child;
-        new_root->sibling = sibling;
+        if (other_root->sibling != nullptr) {
+            new_root->sibling = copy_recursive(other_root->sibling, new_root);
+        }
 
-        copy(new_root->child, other_root->child);
-        copy(new_root->sibling, other_root->sibling);
+        return new_root;
     }
+
+//    void copy(Node* new_root, Node* other_root) {
+//        if (other_root == nullptr) {
+//            return;
+//        }
+//
+////        num++;
+////        std::cout << "copy child new Node, num = " << num << std::endl;
+////        Node* child = other_root->child == nullptr ? nullptr : new Node(other_root->child->getElt());
+////
+////        num++;
+////        std::cout << "copy sibling new Node, num = " << num << std::endl;
+////        Node* sibling = other_root->sibling == nullptr ? nullptr : new Node(other_root->sibling->getElt());
+//
+//
+//        new_root->child = child;
+//        new_root->sibling = sibling;
+//
+//        copy(new_root->child, other_root->child);
+//        copy(new_root->sibling, other_root->sibling);
+//    }
 
 
     // Description: Copy assignment operator.
     // Runtime: O(n)
     // TODO: when you implement this function, uncomment the parameter names.
     PairingPQ &operator=(const PairingPQ &rhs) {
-        // TODO: Implement this function.
-        // HINT: Use the copy-swap method from the "Arrays and Containers" lecture.
-        if (this != &rhs) {
-            root = nullptr;
-            if (rhs.root != nullptr) {
-                root = new Node(rhs.root->getElt());
-                copy(root, rhs.root);
-            }
-        }
-        return *this;
-    } // operator=()
-
-
-    // Description: Destructor
-    // Runtime: O(n)
-    ~PairingPQ() {
         std::queue<Node*> q = to_queue();
         while (!q.empty()) {
             Node* node = q.front();
@@ -124,6 +135,41 @@ public:
             node->child = nullptr;
             node->sibling = nullptr;
             q.pop();
+            delete node;
+        }
+
+        root = copy_recursive(rhs.root, nullptr);
+
+        return *this;
+//        // TODO: Implement this function.
+//        // HINT: Use the copy-swap method from the "Arrays and Containers" lecture.
+//        if (this != &rhs) {
+//            root = nullptr;
+//            if (rhs.root != nullptr) {
+//                num++;
+//                std::cout << "new Node, num = " << num << std::endl;
+//                root = new Node(rhs.root->getElt());
+////                copy(root, rhs.root);
+//            }
+//        }
+//        return *this;
+    } // operator=()
+
+
+    // Description: Destructor
+    // Runtime: O(n)
+    ~PairingPQ() {
+        std::queue<Node*> q = to_queue();
+//        std::cout << "try to release Node" << q.size() << std::endl;
+
+        while (!q.empty()) {
+
+            Node* node = q.front();
+            node->previous = nullptr;
+            node->child = nullptr;
+            node->sibling = nullptr;
+            q.pop();
+//            std::cout << "Release Node" << std::endl;
             delete node;
         }
     } // ~PairingPQ()
@@ -306,6 +352,8 @@ public:
     //       by the user calling pop().  Remember this when you implement updateElt() and
     //       updatePriorities().
     Node *addNode(const TYPE &val) {
+//        num++;
+//        std::cout << "new Node, num = " << num << std::endl;
         Node* new_node = new Node(val);
 
         if (root == nullptr) {
@@ -351,6 +399,8 @@ private:
         a->elt = b->getElt();
         b->elt = tmp;
     }
+
+    size_t num = 0;
     // NOTE: For member variables, you are only allowed to add a "root pointer"
     //       and a "count" of the number of nodes.  Anything else (such as a deque)
     //       should be declared inside of member functions as needed.
